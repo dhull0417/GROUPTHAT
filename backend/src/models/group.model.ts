@@ -51,7 +51,9 @@ const groupSchema = new Schema<IGroup>({
 groupSchema.pre('validate', function(this: IGroup, next) {
   if (this.nonUserMembers && this.nonUserMembers.length > 0) {
     for (const member of this.nonUserMembers) {
-      if (member.phoneNumber && /^\d+$/.test(member.phoneNumber)) {
+      // Only normalize if it looks like a valid phone number without '+'
+      // E.164 numbers are 1-15 digits after the '+'
+      if (member.phoneNumber && /^\d{7,15}$/.test(member.phoneNumber)) {
         member.phoneNumber = `+${member.phoneNumber}`;
       }
     }

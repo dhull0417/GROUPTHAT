@@ -4,7 +4,7 @@ import mongoose, { Document, Model, Schema } from "mongoose";
 import { IGroup } from "./group.model";
 import { RRule } from "rrule";
 
-// 1. Update the interface
+// Define the TypeScript interface for the Activity document
 export interface IActivity extends Document {
   name: string;
   group: IGroup['_id'];
@@ -34,11 +34,18 @@ const activitySchema = new Schema<IActivity>({
           // Attempt to parse the string. If it's invalid, it will throw an error.
           RRule.fromString(rule);
           return true;
-        } catch (error) {
+        } catch (error: any) {
           return false;
         }
       },
-      message: "Invalid iCal RRULE format.",
+      message: (props: any) => {
+        try {
+          RRule.fromString(props.value);
+        } catch (error: any) {
+          return `Invalid iCal RRULE format: ${error.message || 'Unknown error'}`;
+        }
+        return "Invalid iCal RRULE format.";
+      }
     },
   },
   location: {

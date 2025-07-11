@@ -51,7 +51,8 @@ const userSchema = new Schema<IUser>({
     trim: true,
     validate: {
      validator: function(v: string) {
-       return !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+      // More robust email regex that handles more edge cases
+      return !v || /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test(v);
      },
      message: 'Invalid email format'
    },
