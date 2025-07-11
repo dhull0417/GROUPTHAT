@@ -1,20 +1,18 @@
 // src/models/event.model.ts
 
-import mongoose, { Document, Model, Schema } from "mongoose";
-import { IActivity } from "./activity.model";
+import mongoose, { Document, Model, Schema, Types } from "mongoose";
+import Activity, { IActivity } from "./activity.model";
 import { IGroup } from "./group.model";
 import { IUser } from "./user.model";
 
-// 1. Define a TypeScript interface for the Event document
 export interface IEvent extends Document {
   activity: IActivity['_id'];
   group: IGroup['_id'];
   date: Date;
-  attendees: IUser['_id'][]; // Users who are "In"
-  absentees: IUser['_id'][]; // Users who are "Out"
+  attendees: IUser['_id'][];
+  absentees: IUser['_id'][];
 }
 
-// 2. Create the Mongoose schema using the interface
 const eventSchema = new Schema<IEvent>({
   activity: {
     type: Schema.Types.ObjectId,
@@ -40,7 +38,44 @@ const eventSchema = new Schema<IEvent>({
   }],
 }, { timestamps: true });
 
-// 3. Create and export the Mongoose model
+
+eventSchema.pre('save', async function(this: IEvent, next) {
+  try {
+    const activityDoc = await Activity.findById(this.activity);
+
+    if (!activityDoc) {
+      throw new Error('Referenced activity does not exist.');
+    }
+
+    const activityGroup = activityDoc.group as Types.ObjectId;
+    const eventGroup = this.group as Types.ObjectId;
+
+    if (!activityGroup.equals(eventGroup)) {
+      throw new Error("Data inconsistency: Event group does not match the activity's group.");
+    }
+    
+    // 👇 Create explicitly typed local variables for the arrays
+    const attendees = this.attendees as Types.ObjectId[];
+    const absentees = this.absentees as Types.ObjectId[];
+
+    // 👇 Perform the check on the new, strongly-typed variables
+    const hasOverlap = attendees.some(
+      (attendeeId) => absentees.some(
+        (absenteeId) => absenteeId.equals(attendeeId)
+      )
+    );
+
+    if (hasOverlap) {
+      throw new Error('A user cannot be in both the attendees and absentees list.');
+    }
+
+    next();
+  } catch (error: any) {
+    next(error);
+  }
+});
+
+
 const Event: Model<IEvent> = mongoose.model<IEvent>("Event", eventSchema);
 
-export default Event;
+export default Event

@@ -38,11 +38,17 @@ const userSchema = new Schema<IUser>({
     required: true, // Phone number required
     unique: true,
   },
-  email: {
+    email: {
     type: String,
     unique: true,
-    sparse: true, // Allows multiple null values, but unique if a value exists
+    sparse: true,
     trim: true,
+   validate: {
+     validator: function(v: string) {
+       return !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+     },
+     message: 'Invalid email format'
+   },
   },
 }, { timestamps: true });
 

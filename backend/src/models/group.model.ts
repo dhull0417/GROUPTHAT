@@ -1,7 +1,7 @@
 // src/models/group.model.ts
 
-import mongoose, { Document, Model, Schema } from "mongoose";
-import { IUser } from "./user.model"; // Import the User interface
+import mongoose, { Document, Model, Schema, Types } from "mongoose";
+import { IUser } from "./user.model";
 
 // Interface for non-registered members
 interface INonUserMember {
@@ -13,8 +13,8 @@ interface INonUserMember {
 export interface IGroup extends Document {
   name: string;
   description?: string;
-  admin: IUser['_id']; // Reference to a User document's ID
-  members: IUser['_id'][]; // Array of User document IDs
+  admin: IUser['_id'];
+  members: IUser['_id'][];
   nonUserMembers: INonUserMember[];
 }
 
@@ -30,7 +30,7 @@ const groupSchema = new Schema<IGroup>({
   },
   admin: {
     type: Schema.Types.ObjectId,
-    ref: 'User', // Creates the relationship to the User model
+    ref: 'User',
     required: true,
   },
   members: [{
@@ -39,11 +39,44 @@ const groupSchema = new Schema<IGroup>({
   }],
   nonUserMembers: [{
     name: { type: String, required: true },
-    phoneNumber: { type: String, required: true },
+    phoneNumber: {
+      type: String,
+      required: true,
+      match: [/^\+[1-9]\d{1,14}$/, 'Please fill a valid E.164 phone number format (e.g., +14155552671).'],
+    },
   }],
 }, { timestamps: true });
 
-// 3. Create and export the Mongoose model
+
+groupSchema.pre('validate', function(this: IGroup, next) {
+  if (this.nonUserMembers && this.nonUserMembers.length > 0) {
+    for (const member of this.nonUserMembers) {
+      if (member.phoneNumber && /^\d+$/.test(member.phoneNumber)) {
+        member.phoneNumber = `+${member.phoneNumber}`;
+      }
+    }
+  }
+  next();
+});
+
+// Pre-save hook to ensure the admin is a member
+groupSchema.pre('save', function(this: IGroup, next) {
+  // 👇 Create explicitly typed local variables
+  const adminId = this.admin as Types.ObjectId;
+  const members = this.members as Types.ObjectId[];
+
+  // 👇 Perform the check on the new, strongly-typed variables
+  const memberExists = members.some(
+    (memberId) => memberId.equals(adminId)
+  );
+
+  if (!memberExists) {
+    this.members.push(adminId);
+  }
+  next();
+});
+
+
 const Group: Model<IGroup> = mongoose.model<IGroup>("Group", groupSchema);
 
 export default Group;
