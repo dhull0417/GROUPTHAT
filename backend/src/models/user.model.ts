@@ -37,13 +37,19 @@ const userSchema = new Schema<IUser>({
     type: String,
     required: true, // Phone number required
     unique: true,
+    validate: {
+      validator: function(v: string) {
+        return /^\+[1-9]\d{1,14}$/.test(v); // E.164 format
+      },
+      message: 'Phone number must be in E.164 format (e.g., +14155552671)'
+    },
   },
     email: {
     type: String,
     unique: true,
     sparse: true,
     trim: true,
-   validate: {
+    validate: {
      validator: function(v: string) {
        return !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
      },

@@ -2,15 +2,15 @@
 
 import mongoose, { Document, Model, Schema } from "mongoose";
 import { IGroup } from "./group.model";
-import { RRule } from "rrule"; // 👈 Import the RRule class
+import { RRule } from "rrule";
 
-// 1. Define a TypeScript interface for the Activity document
+// 1. Update the interface
 export interface IActivity extends Document {
   name: string;
   group: IGroup['_id'];
   recurrenceRule: string;
   location?: string;
-  time: string;
+  time: Date; // Changed from string to Date
 }
 
 // 2. Create the Mongoose schema using the interface
@@ -33,9 +33,9 @@ const activitySchema = new Schema<IActivity>({
         try {
           // Attempt to parse the string. If it's invalid, it will throw an error.
           RRule.fromString(rule);
-          return true; // Validation passes
+          return true;
         } catch (error) {
-          return false; // Validation fails
+          return false;
         }
       },
       message: "Invalid iCal RRULE format.",
@@ -44,13 +44,13 @@ const activitySchema = new Schema<IActivity>({
   location: {
     type: String,
   },
+  // 3. Update the schema definition
   time: {
-    type: String,
+    type: Date, // Changed from String to Date
     required: true,
   },
 }, { timestamps: true });
 
-// 3. Create and export the Mongoose model
 const Activity: Model<IActivity> = mongoose.model<IActivity>("Activity", activitySchema);
 
 export default Activity;
