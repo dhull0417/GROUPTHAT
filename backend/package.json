@@ -4,8 +4,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsx --watch src/server.tsx",
-    "start": "tsx-node src/server.tsx"
+    "dev": "tsx --watch src/server.ts",
+    "start": "tsx-node src/server.ts"
   },
   "keywords": [],
   "type": "module",
@@ -13,6 +13,8 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@clerk/clerk-sdk-node": "^4.13.23",
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.3",
@@ -26,5 +28,5 @@
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
     "mongoose": "^8.16.2"
-  } 
+  }
 }
