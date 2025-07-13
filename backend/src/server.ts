@@ -11,7 +11,7 @@ import { ENV } from "./config/env";
 import { connectDB } from "./config/db";
 
 
-const app = express();
+export const app = express();
 
 app.use(cors());
 app.use(express.json());
@@ -25,7 +25,7 @@ app.use("/api/group", groupRoutes)
 //app.use("/api/activity", activityRoutes)
 //app.use("/api/event", eventRoutes)
 
-const startServer = async () => {
+export const startServer = async () => {
     try {
         await connectDB();
 

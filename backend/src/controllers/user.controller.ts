@@ -111,8 +111,8 @@ export const syncNewUser = async (req: Request, res: Response) => {
     const newUser = new User({
       clerkId: id,
       phone: phoneNumber,
-      firstName: first_name || '',
-      lastName: last_name || '',
+      firstName: first_name || 'Unknown',
+      lastName: last_name || 'User',
       profilePicture: image_url,
     });
 

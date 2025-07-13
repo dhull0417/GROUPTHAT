@@ -6,7 +6,7 @@ import {
     getGroupDetails,
     addMember,
     removeMember,
-    dissolveGroup,
+    deleteGroup,
     leaveGroup
 } from '../controllers/group.controller';
 
@@ -23,6 +23,6 @@ router.delete("/:groupId/leave", leaveGroup); // User leaves a group
 // --- ADMIN-ONLY ROUTES ---
 router.post("/:groupId/members", requireGroupAdmin(), addMember);
 router.delete("/:groupId/members", requireGroupAdmin(), removeMember);
-router.delete("/:groupId", requireGroupAdmin(), dissolveGroup);
+router.delete("/:groupId", requireGroupAdmin(), deleteGroup);
 
 export default router;

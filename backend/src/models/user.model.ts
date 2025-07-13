@@ -33,6 +33,12 @@ const userSchema = new Schema<IUser>({
     type: String,
     required: true,
     unique: true,
+    validate: {
+      validator: function(v: string) {
+        return /^\+?[\d\s-()]+$/.test(v);
+      },
+      message: 'Invalid phone number format'
+    }
   },
   profilePicture: {
     type: String,
@@ -44,6 +50,7 @@ const userSchema = new Schema<IUser>({
   groups: [{
     type: Schema.Types.ObjectId,
     ref: 'Group',
+    default: []
   }],
 }, { timestamps: true });
 

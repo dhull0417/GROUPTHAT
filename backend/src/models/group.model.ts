@@ -46,6 +46,14 @@ const groupSchema = new Schema<IGroup>({
   }],
 }, { timestamps: true });
 
+// Ensure there is at least one admin
+
+groupSchema.path('admins').validate(function (value) {
+  // 'this' refers to the document being validated
+  // The value is the admins array
+  return value && value.length > 0;
+}, 'At least one admin is required.');
+
 
 // Pre-save hook to ensure all admins are also members
 groupSchema.pre('save', function(this: IGroup, next) {

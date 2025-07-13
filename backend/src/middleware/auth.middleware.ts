@@ -10,6 +10,10 @@ import User from '../models/user.model';
 export const requireGroupAdmin = () => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
+      if (!req.auth || !req.auth.userId) {
+      return res.status(401).json({ message: "Authentication required." });
+    }
+    
       const { groupId } = req.params;
       if (!groupId) {
         return res.status(400).json({ message: "Group ID is required in the URL parameter." });
