@@ -1,20 +1,19 @@
-// src/models/group.model.ts
-
 import mongoose, { Document, Model, Schema, Types } from "mongoose";
 import { IUser } from "./user.model";
 
 // Interface for non-registered members
-interface INonUserMember {
+export interface INonUserMember {
   name: string;
-  phoneNumber: string;
+  phone: string;
 }
 
 // 1. Define a TypeScript interface for the Group document
 export interface IGroup extends Document {
   name: string;
   description?: string;
-  admin: IUser['_id'];
-  members: IUser['_id'][];
+  coverImage?: string;
+  admins: Types.ObjectId[]; // CHANGED: From single 'admin' to an array 'admins'
+  members: Types.ObjectId[];
   nonUserMembers: INonUserMember[];
 }
 
@@ -28,52 +27,43 @@ const groupSchema = new Schema<IGroup>({
   description: {
     type: String,
   },
-  admin: {
+  coverImage: {
+    type: String,
+  },
+  // CHANGED: To support multiple admins for future flexibility
+  admins: [{
     type: Schema.Types.ObjectId,
     ref: 'User',
     required: true,
-  },
+  }],
   members: [{
     type: Schema.Types.ObjectId,
     ref: 'User',
   }],
   nonUserMembers: [{
     name: { type: String, required: true },
-    phoneNumber: {
-      type: String,
-      required: true,
-      match: [/^\+[1-9]\d{1,14}$/, 'Please fill a valid E.164 phone number format (e.g., +14155552671).'],
-    },
+    phone: { type: String, required: true },
   }],
 }, { timestamps: true });
 
+// Ensure there is at least one admin
 
-groupSchema.pre('validate', function(this: IGroup, next) {
-  if (this.nonUserMembers && this.nonUserMembers.length > 0) {
-    for (const member of this.nonUserMembers) {
-      // Only normalize if it looks like a valid phone number without '+'
-      // E.164 numbers are 1-15 digits after the '+'
-      if (member.phoneNumber && /^\d{7,15}$/.test(member.phoneNumber)) {
-        member.phoneNumber = `+${member.phoneNumber}`;
-      }
-    }
-  }
-  next();
-});
+groupSchema.path('admins').validate(function (value) {
+  // 'this' refers to the document being validated
+  // The value is the admins array
+  return value && value.length > 0;
+}, 'At least one admin is required.');
 
-// Pre-save hook to ensure the admin is a member
+
+// Pre-save hook to ensure all admins are also members
 groupSchema.pre('save', function(this: IGroup, next) {
-  // 👇 Create explicitly typed local variables
-  const adminId = this.admin as Types.ObjectId;
-  const members = this.members as Types.ObjectId[];
-
-  // 👇 Perform the check on the new, strongly-typed variables
-  const memberExists = members.some(
-    (memberId) => memberId.equals(adminId)
-  );
-
-  if (!memberExists) {
-    this.members.push(adminId);
+  for (const adminId of this.admins) {
+    // Check if the admin is already in the members list
+    const isMember = this.members.some(memberId => memberId.equals(adminId));
+    if (!isMember) {
+      // If not, add them.
+      this.members.push(adminId);
+    }
   }
   next();
 });

@@ -1,15 +1,14 @@
-// src/models/user.model.ts
-
-import mongoose, { Document, Model, Schema } from "mongoose";
+import mongoose, { Document, Model, Schema, Types } from "mongoose";
 
 // 1. Define a TypeScript interface for the User document
 export interface IUser extends Document {
   clerkId: string;
-  username: string;
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  email?: string; // The '?' makes this field optional
+  firstName: string; // CHANGED: Replaced 'name'
+  lastName: string;  // ADDED
+  phone: string;
+  profilePicture?: string;
+  bio?: string;
+  groups: Types.ObjectId[];
 }
 
 // 2. Create the Mongoose schema using the interface
@@ -19,44 +18,40 @@ const userSchema = new Schema<IUser>({
     required: true,
     unique: true,
   },
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-  },
+  // CHANGED: Using separate fields for first and last name
   firstName: {
     type: String,
     required: true,
+    trim: true,
   },
   lastName: {
     type: String,
     required: true,
+    trim: true,
   },
-  phoneNumber: {
+  phone: {
     type: String,
-    required: true, // Phone number required
+    required: true,
     unique: true,
     validate: {
       validator: function(v: string) {
-        return /^\+[1-9]\d{1,14}$/.test(v); // E.164 format
+        return /^\+?[\d\s-()]+$/.test(v);
       },
-      message: 'Phone number must be in E.164 format (e.g., +14155552671)'
-    },
+      message: 'Invalid phone number format'
+    }
   },
-    email: {
+  profilePicture: {
     type: String,
-    unique: true,
-    sparse: true,
-    trim: true,
-    validate: {
-     validator: function(v: string) {
-      // More robust email regex that handles more edge cases
-      return !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-     },
-     message: 'Invalid email format'
-   },
   },
+  bio: {
+    type: String,
+    maxlength: 250,
+  },
+  groups: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Group',
+    default: []
+  }],
 }, { timestamps: true });
 
 // 3. Create and export the Mongoose model
