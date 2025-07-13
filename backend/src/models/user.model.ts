@@ -47,11 +47,13 @@ const userSchema = new Schema<IUser>({
     type: String,
     maxlength: 250,
   },
-  groups: [{
-    type: Schema.Types.ObjectId,
-    ref: 'Group',
+  groups: {
+     type: [{
+       type: Schema.Types.ObjectId,
+       ref: 'Group',
+     }],
     default: []
-  }],
+   },
 }, { timestamps: true });
 
 // 3. Create and export the Mongoose model
