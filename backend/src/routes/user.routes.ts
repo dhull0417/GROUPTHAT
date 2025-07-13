@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import clerk = require('@clerk/express');
+import { requireAuth } from '@clerk/express';;
 import {
     getCurrentUser,
     getUserProfile,
@@ -12,10 +12,10 @@ const router = Router();
 
 // --- PUBLIC ROUTES ---
 router.get("/profile/:userId", getUserProfile);
-router.post("/sync", syncNewUser);
+router.post("/sync", syncNewUser); // rate limiting with arcjet
 
 // --- PROTECTED ROUTES ---
-router.use(clerk.requireAuth());
+router.use(requireAuth());
 
 router.get("/me", getCurrentUser);
 router.get("/me/groups", getUserGroups);

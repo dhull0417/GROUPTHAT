@@ -1,6 +1,7 @@
 import { Response, NextFunction, Request } from 'express';
 import mongoose from 'mongoose'; // ADDED: This line fixes the error.
 import Group from '../models/group.model';
+import User from '../models/user.model';
 
 /**
  * Custom middleware to verify if the authenticated user is an admin for the group.
@@ -21,6 +22,7 @@ export const requireGroupAdmin = () => {
       
       // Find the user's document ID based on their Clerk ID to check against the admins list.
       const user = await mongoose.model('User').findOne({ clerkId: req.auth.userId }).select('_id');
+      // ALTERNATIVE? const user = await User.findOne({ clerkId: req.auth.userId }).select('_id'); [Less coupled?]
       if (!user) {
           return res.status(404).json({ message: "Authenticated user not found in database." });
       }

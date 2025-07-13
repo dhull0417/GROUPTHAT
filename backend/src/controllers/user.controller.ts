@@ -43,7 +43,7 @@ export const getUserGroups = async (req: Request, res: Response) => {
     try {
         const user = await User.findOne({ clerkId: req.auth.userId })
             .select('groups')
-            .populate<{ groups: IGroup[] }>('groups', 'name coverImage memberCount');
+            .populate<{ groups: IGroup[] }>('groups', 'name coverImage');
 
         if (!user) {
             return res.status(404).json({ message: "User not found." });
@@ -104,9 +104,13 @@ export const syncNewUser = async (req: Request, res: Response) => {
     }
 
     // CHANGED: Saves first_name and last_name from Clerk into their respective fields.
+    const phoneNumber = phone_numbers?.[0]?.phone_number;
+    if (!phoneNumber) {
+      return res.status(400).json({ message: "Phone number is required for user creation." });
+    }
     const newUser = new User({
       clerkId: id,
-      phone: phone_numbers[0]?.phone_number || '',
+      phone: phoneNumber,
       firstName: first_name || '',
       lastName: last_name || '',
       profilePicture: image_url,

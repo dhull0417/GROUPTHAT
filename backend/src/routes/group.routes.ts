@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import clerk = require('@clerk/express');
+import { requireAuth } from '@clerk/express';
 import { requireGroupAdmin } from '../middleware/auth.middleware';
 import {
     createGroup,
@@ -13,7 +13,7 @@ import {
 const router = Router();
 
 // --- BASE PROTECTION ---
-router.use(clerk.requireAuth());
+router.use(requireAuth());
 
 // --- ROUTES FOR ANY LOGGED-IN USER ---
 router.post("/", createGroup); // Create a new group
