@@ -2,55 +2,65 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Group, { IGroup } from '../models/group.model';
 import User, { IUser } from '../models/user.model';
+import Activity from '../models/activity.model';
 
 /**
  * Create a new group, making the creator the first admin.
  * Uses a transaction to ensure atomicity.
  */
-export const createGroup = async (req: Request, res: Response) => {
-    const { name, description } = req.body;
+export const createGroupAndActivity = async (req: Request, res: Response) => {
+    // Expect all details in one request
+    const { groupName, description, activityName, recurrenceRule, location, time } = req.body;
     
-    // Find the user first. No need to start a transaction if the user doesn't exist.
+    // 1. Validate all required inputs
+    if (!groupName || !activityName || !recurrenceRule || !time) {
+        return res.status(400).json({ message: "groupName, activityName, recurrenceRule, and time are required." });
+    }
+
     const user = await User.findOne({ clerkId: req.auth.userId }).select('_id');
     if (!user) {
         return res.status(404).json({ message: "Authenticated user not found." });
     }
 
     const session = await mongoose.startSession();
-
     try {
         session.startTransaction();
 
+        // Operation 1: Create the Group document
         const newGroup = new Group({
-            name,
+            name: groupName,
             description,
-            admins: [user._id], // The creator is the first admin
-            // A pre-save hook will also add the admin to members
+            admins: [user._id],
         });
-
-        // Operation 1: Save the new group within the transaction
         const savedGroup = await newGroup.save({ session });
 
-        // Operation 2: Add the group to the user's list of groups within the transaction
-        await User.updateOne(
-            { _id: user._id },
-            { $addToSet: { groups: savedGroup._id } },
-            { session }
-        );
+        // Operation 2: Create the linked Activity document
+        const newActivity = new Activity({
+            name: activityName,
+            group: savedGroup._id,
+            recurrenceRule,
+            location,
+            time,
+        });
+        const savedActivity = await newActivity.save({ session });
 
-        // If both operations succeed, commit the transaction
+        // Operation 3: Atomically link the activity back to the group
+        await Group.updateOne({ _id: savedGroup._id }, { $set: { activity: savedActivity._id } }, { session });
+
+        // Operation 4: Add the new group to the user's document
+        await User.updateOne({ _id: user._id }, { $addToSet: { groups: savedGroup._id } }, { session });
+
         await session.commitTransaction();
-
-        res.status(201).json(savedGroup);
+        
+        const finalGroup = await Group.findById(savedGroup._id).populate('activity').lean();
+        res.status(201).json(finalGroup);
 
     } catch (error) {
-        // If any error occurs, abort the transaction to roll back changes
         await session.abortTransaction();
-        console.error("Transaction aborted. Error creating group:", error);
-        res.status(500).json({ message: "Server error creating group. Operation rolled back." });
+        console.error("Transaction aborted. Error creating group and activity:", error);
+        res.status(500).json({ message: "Failed to create group. Operation rolled back." });
 
     } finally {
-        // Always end the session
         session.endSession();
     }
 };

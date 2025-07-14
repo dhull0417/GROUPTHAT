@@ -1,5 +1,6 @@
 import mongoose, { Document, Model, Schema, Types } from "mongoose";
 import { IUser } from "./user.model";
+import { IActivity } from "./activity.model";
 
 // Interface for non-registered members
 export interface INonUserMember {
@@ -15,6 +16,7 @@ export interface IGroup extends Document {
   admins: Types.ObjectId[]; // CHANGED: From single 'admin' to an array 'admins'
   members: Types.ObjectId[];
   nonUserMembers: INonUserMember[];
+  activity?: IActivity['_id'];
 }
 
 // 2. Create the Mongoose schema using the interface
@@ -44,6 +46,10 @@ const groupSchema = new Schema<IGroup>({
     name: { type: String, required: true },
     phone: { type: String, required: true },
   }],
+  activity: {
+    type: Schema.Types.ObjectId,
+    ref: 'Activity',
+  },
 }, { timestamps: true });
 
 // Ensure there is at least one admin
