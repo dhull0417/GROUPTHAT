@@ -4,8 +4,8 @@ import { clerkMiddleware } from "@clerk/express";
 
 import userRoutes from "./routes/user.routes";
 import groupRoutes from "./routes/group.routes";
-// import commentRoutes from "./routes/comment.route.js";
-// import notificationRoutes from "./routes/notification.route.js";
+import activityRoutes from "./routes/activity.routes";
+
 
 import { ENV } from "./config/env";
 import { connectDB } from "./config/db";
@@ -22,7 +22,7 @@ app.get("/", (req, res) => res.send("Hello from server"))
 
 app.use("/api/users", userRoutes)
 app.use("/api/group", groupRoutes)
-//app.use("/api/activity", activityRoutes)
+app.use("/api/activity", activityRoutes)
 //app.use("/api/event", eventRoutes)
 
 export const startServer = async () => {
