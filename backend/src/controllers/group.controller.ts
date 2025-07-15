@@ -3,6 +3,8 @@ import mongoose from 'mongoose';
 import Group, { IGroup } from '../models/group.model';
 import User, { IUser } from '../models/user.model';
 import Activity from '../models/activity.model';
+import Event from '../models/event.model';
+import { RRule } from 'rrule'; 
 
 /**
  * Create a new group, making the creator the first admin.
@@ -44,10 +46,28 @@ export const createGroupAndActivity = async (req: Request, res: Response) => {
         });
         const savedActivity = await newActivity.save({ session });
 
-        // Operation 3: Atomically link the activity back to the group
+        // Operation 3: Calculate the first event date
+        const rule = RRule.fromString(savedActivity.recurrenceRule);
+        const firstEventDate = rule.after(new Date(), true); // Get first occurrence after right now
+
+        if (!firstEventDate) {
+            // This can happen if the rule has an end date (UNTIL) that's in the past.
+            throw new Error("Could not calculate a future event date based on the provided rule.");
+        }
+
+        // Operation 4: Create the first Event document
+        const newEv = new Event({
+            activity: savedActivity._id,
+            group: savedGroup._id,
+            date: firstEventDate,
+            // attendees and absentees default to empty arrays per your model
+        });
+        await newEv.save({ session });
+
+        // Operation 5: Atomically link the activity back to the group
         await Group.updateOne({ _id: savedGroup._id }, { $set: { activity: savedActivity._id } }, { session });
 
-        // Operation 4: Add the new group to the user's document
+        // Operation 6: Add the new group to the user's document
         await User.updateOne({ _id: user._id }, { $addToSet: { groups: savedGroup._id } }, { session });
 
         await session.commitTransaction();
