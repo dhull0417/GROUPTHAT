@@ -16,6 +16,7 @@ const arcjetConfig = {
       mode: "LIVE",
       allow: [
         "CATEGORY:SEARCH_ENGINE",
+        "CATEGORY:MONITOR"
       ],
     }),
 
