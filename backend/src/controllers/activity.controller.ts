@@ -20,7 +20,7 @@ export const getActivity = async (req: Request, res: Response) => {
         }
         
                 // FIX: Use an inline type assertion to avoid the "Cannot find name" error.
-        const user = await User.findOne({ clerkId: req.auth.userId }).select('_id') as { _id: mongoose.Types.ObjectId } | null;
+        const user = await User.findOne({ clerkId: req.auth.userId }).select<{ _id: mongoose.Types.ObjectId }>('_id');
         if (!user) {
             return res.status(404).json({ message: "Authenticated user not found." });
         }
@@ -94,7 +94,9 @@ export const deleteActivity = async (req: Request, res: Response) => {
 
         const activity = await Activity.findById(activityId).session(session);
         if (!activity) {
-            throw { status: 404, message: "Activity not found." };
+            const error = new Error("Activity not found.");
+            (error as any).status = 404;
+            throw error;
         }
         
         // Operation 1: Unlink the activity from the group

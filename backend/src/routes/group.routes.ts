@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { requireAuth } from '@clerk/express';
 import { requireGroupAdmin } from '../middleware/auth.middleware';
 import {
-    createGroup,
+    createGroupAndActivity,
     getGroupDetails,
     addMember,
     removeMember,
@@ -16,7 +16,7 @@ const router = Router();
 router.use(requireAuth());
 
 // --- ROUTES FOR ANY LOGGED-IN USER ---
-router.post("/", createGroup); // Create a new group
+router.post("/", createGroupAndActivity); // Create a new group and activity
 router.get("/:groupId", getGroupDetails);
 router.delete("/:groupId/leave", leaveGroup); // User leaves a group
 
