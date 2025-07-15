@@ -14,14 +14,14 @@ const router = Router();
 router.use(requireAuth());
 
 /**
- * GET /api/events/group/:groupId/upcoming
+ * GET /api/event/group/:groupId/upcoming
  * Retrieves the single upcoming event for a specific group.
  * The user must be a member of the group to access this.
  */
 router.get("/group/:groupId/upcoming", getUpcomingEventForGroup);
 
 /**
- * PUT /api/events/:eventId/status
+ * PUT /api/event/:eventId/status
  * Allows the authenticated user to update their own attendance status
  * for a specific event.
  * Body: { status: "in" | "out" | "undecided" }
