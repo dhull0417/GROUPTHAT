@@ -2,7 +2,7 @@
 
 import mongoose, { Document, Model, Schema } from "mongoose";
 import { IGroup } from "./group.model";
-import { RRule } from "rrule";
+import * as rrule from "rrule";
 
 // Define the TypeScript interface for the Activity document
 export interface IActivity extends Document {
@@ -32,20 +32,13 @@ const activitySchema = new Schema<IActivity>({
       validator: (rule: string) => {
         try {
           // Attempt to parse the string. If it's invalid, it will throw an error.
-          RRule.fromString(rule);
+        rrule.rrulestr(rule);
           return true;
-        } catch (error: any) {
+        } catch (error) {
           return false;
         }
       },
-      message: (props: any) => {
-        try {
-          RRule.fromString(props.value);
-        } catch (error: any) {
-          return `Invalid iCal RRULE format: ${error.message || 'Unknown error'}`;
-        }
-        return "Invalid iCal RRULE format.";
-      }
+      message: (props: any) => `${props.value} is not a valid iCal RRULE string.`
     },
   },
   location: {
