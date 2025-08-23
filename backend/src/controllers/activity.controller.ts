@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import Activity from '../models/activity.model';
 import Group, { IGroup } from '../models/group.model';
 import User from '../models/user.model';
-import { RRule } from 'rrule';
+import * as rrule from 'rrule';
 
 
 /**
@@ -62,7 +62,8 @@ export const updateActivity = async (req: Request, res: Response) => {
             return res.status(400).json({ message: "No update fields provided." });
         }
         if (updateData.recurrenceRule) {
-             RRule.fromString(updateData.recurrenceRule); // Validate new rule before proceeding
+            // FIX 2: Access the 'rrulestr' function from the imported 'rrule' object.
+            rrule.rrulestr(updateData.recurrenceRule); // Validate new rule before proceeding
         }
 
         const activity = await Activity.findById(activityId);

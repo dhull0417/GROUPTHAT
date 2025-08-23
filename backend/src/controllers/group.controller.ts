@@ -4,7 +4,7 @@ import Group, { IGroup } from '../models/group.model';
 import User, { IUser } from '../models/user.model';
 import Activity from '../models/activity.model';
 import Event from '../models/event.model';
-import { RRule } from 'rrule'; 
+import * as rrule from 'rrule';
 
 /**
  * Create a new group, making the creator the first admin.
@@ -47,7 +47,8 @@ export const createGroupAndActivity = async (req: Request, res: Response) => {
         const savedActivity = await newActivity.save({ session });
 
         // Operation 3: Calculate the first event date
-        const rule = RRule.fromString(savedActivity.recurrenceRule);
+        // FIX 2: Access the 'rrulestr' function from the imported 'rrule' object.
+        const rule = rrule.rrulestr(savedActivity.recurrenceRule);
         const firstEventDate = rule.after(new Date(), true); // Get first occurrence after right now
 
         if (!firstEventDate) {
