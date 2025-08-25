@@ -1,11 +1,12 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx --watch src/server.ts",
-    "start": "tsx-node src/server.ts"
+    "build": "tsc",
+    "start": "node dist/server.js"
   },
   "keywords": [],
   "type": "module",
