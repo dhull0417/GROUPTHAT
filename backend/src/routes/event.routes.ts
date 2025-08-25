@@ -5,7 +5,7 @@ import { requireAuth } from '@clerk/express';
 import {
     getUpcomingEventForGroup,
     updateMyAttendance
-} from '../controllers/event.controller';
+} from '../controllers/event.controller.js';
 
 const router = Router();
 

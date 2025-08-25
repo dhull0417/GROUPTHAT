@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import Activity from '../models/activity.model';
-import Group, { IGroup } from '../models/group.model';
-import User from '../models/user.model';
+import Activity from '../models/activity.model.js';
+import Group, { IGroup } from '../models/group.model.js';
+import User from '../models/user.model.js';
 import * as rrule from 'rrule';
 
 

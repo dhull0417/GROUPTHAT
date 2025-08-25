@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { requireAuth } from '@clerk/express';
-import { requireGroupAdmin } from '../middleware/auth.middleware';
+import { requireGroupAdmin } from '../middleware/auth.middleware.js';
 import {
     getActivity,
     updateActivity,
     deleteActivity
-} from '../controllers/activity.controller';
+} from '../controllers/activity.controller.js';
 
 const router = Router();
 

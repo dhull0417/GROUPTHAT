@@ -1,9 +1,9 @@
 // src/models/event.model.ts
 
 import mongoose, { Document, Model, Schema, Types } from "mongoose";
-import Activity, { IActivity } from "./activity.model";
-import { IGroup } from "./group.model";
-import { IUser } from "./user.model";
+import Activity, { IActivity } from "./activity.model.js";
+import { IGroup } from "./group.model.js";
+import { IUser } from "./user.model.js";
 
 export interface IEvent extends Document {
   activity: IActivity['_id'];

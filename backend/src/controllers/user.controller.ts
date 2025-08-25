@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import User, { IUser } from '../models/user.model';
-import { IGroup } from '../models/group.model';
+import User, { IUser } from '../models/user.model.js';
+import { IGroup } from '../models/group.model.js';
 
 /**
  * Get the profile of the currently authenticated user.

@@ -6,7 +6,7 @@ import {
     getUserGroups,
     updateUserProfile,
     syncNewUser
-} from '../controllers/user.controller.ts';
+} from '../controllers/user.controller.js';
 
 const router = Router();
 

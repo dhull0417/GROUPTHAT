@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { requireAuth } from '@clerk/express';
-import { requireGroupAdmin } from '../middleware/auth.middleware';
+import { requireGroupAdmin } from '../middleware/auth.middleware.js';
 import {
     createGroupAndActivity,
     getGroupDetails,
@@ -8,7 +8,7 @@ import {
     removeMember,
     deleteGroup,
     leaveGroup
-} from '../controllers/group.controller';
+} from '../controllers/group.controller.js';
 
 const router = Router();
 

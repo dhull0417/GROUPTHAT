@@ -1,6 +1,6 @@
 import mongoose, { Document, Model, Schema, Types } from "mongoose";
-import { IUser } from "./user.model";
-import { IActivity } from "./activity.model";
+import { IUser } from "./user.model.js";
+import { IActivity } from "./activity.model.js";
 
 // Interface for non-registered members
 export interface INonUserMember {

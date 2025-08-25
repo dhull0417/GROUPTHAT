@@ -1,7 +1,7 @@
 // src/models/activity.model.ts
 
 import mongoose, { Document, Model, Schema } from "mongoose";
-import { IGroup } from "./group.model";
+import { IGroup } from "./group.model.js";
 import * as rrule from "rrule";
 
 // Define the TypeScript interface for the Activity document

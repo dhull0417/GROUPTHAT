@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import mongoose, { UpdateQuery } from 'mongoose';
-import Event, { IEvent } from '../models/event.model';
-import User, { IUser } from '../models/user.model';
-import Group from '../models/group.model';
+import Event, { IEvent } from '../models/event.model.js';
+import User, { IUser } from '../models/user.model.js';
+import Group from '../models/group.model.js';
 
 /**
  * Retrieves the upcoming event for a specific group.
