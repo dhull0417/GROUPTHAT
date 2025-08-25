@@ -1,3 +1,5 @@
+/// <reference path="../../types/index.d.ts" />
+
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Group, { IGroup } from '../models/group.model';
